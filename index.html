@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="index, follow">
+  <meta name="description" content="TOK Exhibition Bot by GMIS Semarang. Includes IA prompt support, multilingual UI, and export tools for students.">
+  <meta name="keywords" content="TOK Bot, GMIS Jakarta, GMIS Semarang, IB TOK Exhibition, TOK Commentary, Jalan Bukit Candi, British School Overseas, IB Education Indonesia">
+  <meta name="author" content="GMIS Semarang">
+  <title>TOK Bot by GMIS Semarang – IB TOK Exhibition Assistant</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+
+<body class="bg-gray-50 p-4 sm:p-6 font-sans text-base">
+  <div class="max-w-3xl mx-auto bg-white p-6 rounded-xl shadow-md space-y-6">
+    <div class="flex items-center justify-between border-b pb-4 mb-4">
+      <img src="GMIS_logo_highres.png" alt="GMIS Logo" class="h-12 w-auto">
+      <span class="text-right text-sm font-medium text-gray-700">Gandhi Memorial Intercontinental School Jakarta,<br>IB World School</span>
+    </div>
+  
+    <div class="text-right">
+      <select id="langToggle" onchange="setLanguage(this.value)" class="text-sm border rounded px-2 py-1">
+        <option value="en">English</option>
+        <option value="ko">한국어 (Korean)</option>
+        <option value="hi">हिन्दी (Hindi)</option>
+      </select>
+    </div>
+
+    <!-- Step 1: IA Prompt Selection -->
+    <section class="space-y-2 sm:space-y-4" id="step1">
+      <h2 class="font-semibold text-lg mb-2">1. Select Your IA Prompt</h2>
+      <select id="iaPrompt" class="w-full border p-2 rounded mb-4">
+        <option value="">-- Select your prompt --</option>
+        <option value="What is the relationship between personal experience and knowledge?">What is the relationship between personal experience and knowledge?</option>
+        <option value="Are some types of knowledge more useful than others?">Are some types of knowledge more useful than others?</option>
+        <option value="On what grounds might we doubt a claim?">On what grounds might we doubt a claim?</option>
+      </select>
+      <button onclick="goToStep(2)" class="bg-blue-600 text-white px-4 py-2 rounded w-full">Next</button>
+    </section>
+
+    <!-- Step 2: Prompt Interpretation -->
+    <section class="space-y-2 sm:space-y-4 hidden" id="step2">
+      <h2 class="font-semibold text-lg mb-2">2. Interpret the Prompt</h2>
+      <p class="text-gray-700 mb-2">What does this prompt mean to you?</p>
+      <input type="text" id="promptInterpretation" placeholder="This prompt invites exploration of..." class="w-full border p-2 rounded mb-4" />
+      <button onclick="goToStep('5a')" class="bg-blue-600 text-white px-4 py-2 rounded w-full">Start Commentary</button>
+    </section>
+
+    <!-- Step 5A: Object 1 -->
+    <section class="space-y-2 sm:space-y-4 hidden" id="step5a">
+      <h2 class="font-semibold text-lg mb-2">3. Commentary – Object 1</h2>
+      <input type="text" id="obj1Title" placeholder="Object Title" class="w-full border p-2 rounded mb-2"/>
+      <input type="text" id="obj1Context" placeholder="Real-world Context" class="w-full border p-2 rounded mb-2"/>
+      <textarea id="obj1Text" placeholder="Justification & Link to Prompt" class="w-full border p-2 rounded h-40"></textarea>
+      <p class="text-xs text-gray-500 mt-2">Suggested max: ~300 words.</p>
+      <button onclick="goToStep('5b')" class="bg-blue-600 text-white px-4 py-2 rounded mt-4 w-full">Next Object</button>
+    </section>
+
+    <!-- Step 5B: Object 2 -->
+    <section class="space-y-2 sm:space-y-4 hidden" id="step5b">
+      <h2 class="font-semibold text-lg mb-2">4. Commentary – Object 2</h2>
+      <input type="text" id="obj2Title" placeholder="Object Title" class="w-full border p-2 rounded mb-2"/>
+      <input type="text" id="obj2Context" placeholder="Real-world Context" class="w-full border p-2 rounded mb-2"/>
+      <textarea id="obj2Text" placeholder="Justification & Link to Prompt" class="w-full border p-2 rounded h-40"></textarea>
+      <p class="text-xs text-gray-500 mt-2">Suggested max: ~300 words.</p>
+      <button onclick="goToStep('5c')" class="bg-blue-600 text-white px-4 py-2 rounded mt-4 w-full">Next Object</button>
+    </section>
+
+    <!-- Step 5C: Object 3 -->
+    <section class="space-y-2 sm:space-y-4 hidden" id="step5c">
+      <h2 class="font-semibold text-lg mb-2">5. Commentary – Object 3</h2>
+      <input type="text" id="obj3Title" placeholder="Object Title" class="w-full border p-2 rounded mb-2"/>
+      <input type="text" id="obj3Context" placeholder="Real-world Context" class="w-full border p-2 rounded mb-2"/>
+      <textarea id="obj3Text" placeholder="Justification & Link to Prompt" class="w-full border p-2 rounded h-40"></textarea>
+      <p class="text-xs text-gray-500 mt-2">Suggested max: ~300 words. IB limit = 950 words total.</p>
+      <button onclick="goToStep(6)" class="bg-blue-600 text-white px-4 py-2 rounded mt-4 w-full">Finish</button>
+    </section>
+
+    <!-- Step 6: Export -->
+    <section class="space-y-2 sm:space-y-4 hidden" id="step6">
+      <h2 class="font-semibold text-lg mb-2">6. Export Your Draft</h2>
+      <p class="text-gray-700 mb-2">You’ve now completed your draft commentaries for all 3 objects.</p>
+      <button onclick="downloadTxtFile()" class="border border-blue-600 text-blue-600 px-4 py-2 rounded w-full">⬇️ Export .txt</button>
+      <button onclick="downloadDocxFile()" class="bg-blue-600 text-white px-4 py-2 rounded mt-2 w-full">📝 Export .docx</button>
+      <p class="text-xs text-gray-500 mt-4">Reminder: IB word count limit is 950 words (excluding references).</p>
+      <button onclick="goToStep('7')" class="bg-blue-600 text-white px-4 py-2 rounded mt-4 w-full">Continue to Self-Check</button>
+      <a href="TOK_Mentor_Bot_v3.8_Offline_Pack.zip" class="text-blue-600 underline text-sm block mt-4" download>⬇️ Download ZIP for Offline Use</a>
+    </section>
+
+    <!-- Step 7: Self-Check Checklist -->
+    <section class="space-y-2 sm:space-y-4 hidden" id="step7">
+      <h2 class="font-semibold text-lg mb-2">7. Self-Check Checklist</h2>
+      <p class="text-gray-700 mb-2">Reflect on the TOK Exhibition criteria:</p>
+      <div class="space-y-2">
+        <label class="flex items-center">
+          <input type="checkbox" onchange="updateSelfCheckScore()" class="mr-2" />
+          Have I clearly linked each object to the IA prompt?
+        </label>
+        <label class="flex items-center">
+          <input type="checkbox" onchange="updateSelfCheckScore()" class="mr-2" />
+          Did I justify the inclusion of each object using TOK concepts?
+        </label>
+        <label class="flex items-center">
+          <input type="checkbox" onchange="updateSelfCheckScore()" class="mr-2" />
+          Is my total word count below 950 words?
+        </label>
+      </div>
+      <p class="text-sm text-gray-600 mt-4">Self-Check Score: <span id="selfCheckScore">0</span>/3</p>
+      <button onclick="goToStep('8')" class="bg-blue-600 text-white px-4 py-2 rounded mt-4 w-full">Continue to Reflection</button>
+    </section>
+
+    <!-- Step 8: Reflection Export -->
+    <section class="space-y-2 sm:space-y-4 hidden" id="step8">
+      <h2 class="font-semibold text-lg mb-2">8. Final Reflection (Optional)</h2>
+      <textarea id="finalReflection" placeholder="Write your overall insights here..." class="w-full border p-2 rounded h-40 mb-4"></textarea>
+      <h3 class="font-medium text-sm text-gray-600 mt-4">📄 Preview of Export Content:</h3>
+      <textarea id="previewArea" class="w-full h-64 p-2 border rounded bg-gray-50 text-xs font-mono mb-4" readonly></textarea>
+      <button onclick="saveReflection()" class="bg-blue-600 text-white px-4 py-2 rounded mr-2 w-full">💾 Save Final Reflection</button>
+      <button onclick="copyAllToClipboard()" class="bg-blue-600 text-white px-4 py-2 rounded mr-2 w-full">📋 Copy All</button>
+      <button onclick="downloadTxtFile()" class="bg-blue-600 text-white px-4 py-2 rounded w-full">⬇️ Export .txt</button>
+      <button onclick="downloadDocxFile()" class="bg-blue-600 text-white px-4 py-2 rounded mt-2 w-full">📝 Export .docx</button>
+      <a href="TOK_Mentor_Bot_v3.8_Offline_Pack.zip" class="text-blue-600 underline text-sm block mt-4" download>⬇️ Download ZIP for Offline Use</a>
+    </section>
+
+    <!-- Footer -->
+    <footer class="pt-6 text-xs text-gray-400 border-t mt-6">
+      TOK Bot 4.1 Multilingual Tools for Equitable Access to Quality Education (Internal Use) | Leading SDG4 | GMIS Innovation Lab 2025 | Virtute et Labore | by Sandra Dewi
+    </footer>
+  </div>
+
+  <script>
+    function goToStep(stepId) {
+      const steps = ['step1','step2','step5a','step5b','step5c','step6','step7','step8'];
+      steps.forEach(id => document.getElementById(id).classList.add('hidden'));
+      document.getElementById('step' + stepId).classList.remove('hidden');
+    }
+
+    function updateSelfCheckScore() {
+      const checkboxes = document.querySelectorAll('#step7 input[type="checkbox"]');
+      const score = Array.from(checkboxes).filter(checkbox => checkbox.checked).length;
+      document.getElementById('selfCheckScore').textContent = score;
+    }
+
+    function updatePreview() {
+      document.getElementById('previewArea').value = generateExportText();
+    }
+
+    function saveReflection() {
+      const ref = document.getElementById('finalReflection').value;
+      localStorage.setItem('finalReflection', ref);
+      updatePreview();
+      alert('Reflection saved locally.');
+    }
+
+    function copyAllToClipboard() {
+      const data = generateExportText();
+      navigator.clipboard.writeText(data).then(() => {
+        updatePreview();
+        alert('All content copied to clipboard!');
+      });
+    }
+
+    function downloadTxtFile() {
+      const content = generateExportText();
+      const blob = new Blob([content], { type: 'text/plain' });
+      const link = document.createElement('a');
+      link.download = 'TOK_Exhibition_Draft.txt';
+      link.href = window.URL.createObjectURL(blob);
+      link.click();
+    }
+
+    async function downloadDocxFile() {
+      const getVal = id => document.getElementById(id)?.value || '';
+      const { Document, Packer, Paragraph, TextRun } = window.docx;
+
+      const makeHeading = text => new Paragraph({
+        children: [new TextRun({ text, bold: true })],
+        spacing: { after: 200 }
+      });
+
+      const makeText = text => new Paragraph({
+        children: [new TextRun({ text })],
+        spacing: { after: 300 }
+      });
+
+      const doc = new Document({
+        sections: [{
+          children: [
+            makeHeading("TOK Exhibition Draft – v3.1"),
+            makeHeading("IA Prompt:"),
+            makeText(getVal('iaPrompt')),
+            makeHeading("Interpretation:"),
+            makeText(getVal('promptInterpretation')),
+
+            makeHeading("--- Object 1 ---"),
+            makeHeading("Title:"),
+            makeText(getVal('obj1Title')),
+            makeHeading("Context:"),
+            makeText(getVal('obj1Context')),
+            makeHeading("Commentary:"),
+            makeText(getVal('obj1Text')),
+
+            makeHeading("--- Object 2 ---"),
+            makeHeading("Title:"),
+            makeText(getVal('obj2Title')),
+            makeHeading("Context:"),
+            makeText(getVal('obj2Context')),
+            makeHeading("Commentary:"),
+            makeText(getVal('obj2Text')),
+
+            makeHeading("--- Object 3 ---"),
+            makeHeading("Title:"),
+            makeText(getVal('obj3Title')),
+            makeHeading("Context:"),
+            makeText(getVal('obj3Context')),
+            makeHeading("Commentary:"),
+            makeText(getVal('obj3Text')),
+
+            makeHeading("Final Reflection:"),
+            makeText(getVal('finalReflection'))
+          ]
+        }]
+      });
+
+      const blob = await Packer.toBlob(doc);
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "TOK_Exhibition_Draft.docx";
+      link.click();
+    }
+
+    function generateExportText() {
+      const getVal = id => document.getElementById(id)?.value || '';
+      return `
+TOK Exhibition Draft – v3.1
+IA Prompt: ${getVal('iaPrompt')}
+Interpretation: ${getVal('promptInterpretation')}
+
+--- Object 1 ---
+Title: ${getVal('obj1Title')}
+Context: ${getVal('obj1Context')}
+Commentary:
+${getVal('obj1Text')}
+
+--- Object 2 ---
+Title: ${getVal('obj2Title')}
+Context: ${getVal('obj2Context')}
+Commentary:
+${getVal('obj2Text')}
+
+--- Object 3 ---
+Title: ${getVal('obj3Title')}
+Context: ${getVal('obj3Context')}
+Commentary:
+${getVal('obj3Text')}
+
+--- Final Reflection ---
+${getVal('finalReflection')}
+      `.trim();
+    }
+
+    const langMap = {
+      en: {
+        step1: "1. Select Your IA Prompt",
+        step2: "2. Interpret the Prompt",
+        step3a: "3. Commentary – Object 1",
+        step3b: "4. Commentary – Object 2",
+        step3c: "5. Commentary – Object 3",
+        export6: "6. Export Your Draft",
+        checklist7: "7. Self-Check Checklist",
+        reflect8: "8. Final Reflection (Optional)"
+      },
+      ko: {
+        step1: "1. IA 프롬프트 선택",
+        step2: "2. 프롬프트 해석",
+        step3a: "3. 해설 – 객체 1",
+        step3b: "4. 해설 – 객체 2",
+        step3c: "5. 해설 – 객체 3",
+        export6: "6. 초안 내보내기",
+        checklist7: "7. 자기 점검 목록",
+        reflect8: "8. 최종 성찰 (선택사항)"
+      },
+      hi: {
+        step1: "1. अपना IA प्रॉम्प्ट चुनें",
+        step2: "2. प्रॉम्प्ट की व्याख्या करें",
+        step3a: "3. टिप्पणी – वस्तु 1",
+        step3b: "4. टिप्पणी – वस्तु 2",
+        step3c: "5. टिप्पणी – वस्तु 3",
+        export6: "6. अपना ड्राफ्ट निर्यात करें",
+        checklist7: "7. स्वयं-जांच चेकलिस्ट",
+        reflect8: "8. अंतिम चिंतन (वैकल्पिक)",
+ 
+        placeholders: {
+          promptInterpretation: "यह प्रॉम्प्ट आपको यह खोजने के लिए प्रेरित करता है...",
+          objTitle: "वस्तु का शीर्षक",
+          objContext: "वास्तविक दुनिया का संदर्भ",
+          objCommentary: "औचित्य और प्रॉम्प्ट से लिंक",
+          finalReflection: "यहाँ अपने समग्र विचार लिखें..."
+        },
+ 
+        buttons: {
+          next: "आगे बढ़ें",
+          startCommentary: "टिप्पणी शुरू करें",
+          nextObject: "अगली वस्तु",
+          finish: "समाप्त करें",
+          exportTXT: "TXT निर्यात करें",
+          exportDOCX: "📝 .docx निर्यात करें",
+          continueSelfCheck: "स्वयं-जांच जारी रखें",
+          continueReflection: "चिंतन पर जाएँ",
+          saveReflection: "💾 चिंतन सहेजें",
+          copyAll: "📋 सब कॉपी करें",
+          downloadTXT: "⬇️ .txt डाउनलोड करें",
+          downloadDOCX: "📝 .docx डाउनलोड करें"
+        },
+ 
+        selfCheckItems: [
+          "क्या मैंने प्रत्येक वस्तु को IA प्रॉम्प्ट से स्पष्ट रूप से जोड़ा है?",
+          "क्या मैंने TOK अवधारणाओं का उपयोग करके प्रत्येक वस्तु को शामिल करने का औचित्य प्रस्तुत किया है?",
+          "क्या मेरी कुल शब्द सीमा 950 शब्दों से कम है?"
+        ]
+      }
+    };
+
+    function setLanguage(lang) {
+      const map = langMap[lang];
+ 
+      // Headings
+      document.querySelector('#step1 h2').textContent = map.step1;
+      document.querySelector('#step2 h2').textContent = map.step2;
+      document.querySelector('#step5a h2').textContent = map.step3a;
+      document.querySelector('#step5b h2').textContent = map.step3b;
+      document.querySelector('#step5c h2').textContent = map.step3c;
+      document.querySelector('#step6 h2').textContent = map.export6;
+      document.querySelector('#step7 h2').textContent = map.checklist7;
+      document.querySelector('#step8 h2').textContent = map.reflect8;
+ 
+      // Placeholders (if available)
+      if (map.placeholders) {
+        document.getElementById('promptInterpretation').placeholder = map.placeholders.promptInterpretation;
+        ['obj1', 'obj2', 'obj3'].forEach(id => {
+          document.getElementById(`${id}Title`).placeholder = map.placeholders.objTitle;
+          document.getElementById(`${id}Context`).placeholder = map.placeholders.objContext;
+          document.getElementById(`${id}Text`).placeholder = map.placeholders.objCommentary;
+        });
+        document.getElementById('finalReflection').placeholder = map.placeholders.finalReflection;
+      }
+ 
+      // Buttons (if available)
+      if (map.buttons) {
+        document.querySelector('#step1 button').textContent = map.buttons.next;
+        document.querySelector('#step2 button').textContent = map.buttons.startCommentary;
+        document.querySelector('#step5a button').textContent = map.buttons.nextObject;
+        document.querySelector('#step5b button').textContent = map.buttons.nextObject;
+        document.querySelector('#step5c button').textContent = map.buttons.finish;
+        const step6buttons = document.querySelectorAll('#step6 button');
+        if (step6buttons.length >= 3) {
+          step6buttons[0].textContent = map.buttons.exportTXT;
+          step6buttons[1].textContent = map.buttons.exportDOCX;
+          step6buttons[2].textContent = map.buttons.continueSelfCheck;
+        }
+        document.querySelector('#step7 button').textContent = map.buttons.continueReflection;
+        const step8buttons = document.querySelectorAll('#step8 button');
+        if (step8buttons.length >= 4) {
+          step8buttons[0].textContent = map.buttons.saveReflection;
+          step8buttons[1].textContent = map.buttons.copyAll;
+          step8buttons[2].textContent = map.buttons.downloadTXT;
+          step8buttons[3].textContent = map.buttons.downloadDOCX;
+        }
+      }
+ 
+      // Self-Check Items (if available)
+      if (map.selfCheckItems) {
+        const labels = document.querySelectorAll('#step7 label');
+        labels.forEach((label, index) => {
+          const checkbox = label.querySelector('input');
+          label.textContent = map.selfCheckItems[index] || '';
+          label.prepend(checkbox);
+        });
+      }
+    }
+
+    window.onload = function () {
+      goToStep(1);  // Ensure it starts at Step 1
+      const ref = localStorage.getItem('finalReflection');
+      if (ref) document.getElementById('finalReflection').value = ref;
+      updatePreview();
+    };
+  </script>
+</body>
+</html>
